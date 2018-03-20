@@ -24,7 +24,7 @@
 
 #ifndef cond_syscall
 #define cond_syscall(x)	asm(				\
-	".weak " VMLINUX_SYMBOL_STR(x) "\n\t"		\
+	".weak_definition " VMLINUX_SYMBOL_STR(x) "\n\t"		\
 	".set  " VMLINUX_SYMBOL_STR(x) ","		\
 		 VMLINUX_SYMBOL_STR(sys_ni_syscall))
 #endif

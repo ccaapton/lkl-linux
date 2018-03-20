@@ -363,9 +363,9 @@ static void write_src(void)
 	printf("#endif\n");
 
 	if (use_data_section)
-		printf("\t.section .data\n");
+		printf("\t.section __DATA,.data\n");
 	else
-		printf("\t.section .rodata, \"a\"\n");
+		printf("\t.section __RODATA,.rodata, \"a\"\n");
 
 	/* Provide proper symbols relocatability by their relativeness
 	 * to a fixed anchor point in the runtime image, either '_text'

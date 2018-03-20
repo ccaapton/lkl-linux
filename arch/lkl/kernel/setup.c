@@ -49,6 +49,7 @@ static void __init lkl_run_kernel(void *arg)
 	start_kernel();
 }
 
+void macho_linker(void);
 int __init lkl_start_kernel(struct lkl_host_operations *ops,
 			const char *fmt, ...)
 {
@@ -56,6 +57,8 @@ int __init lkl_start_kernel(struct lkl_host_operations *ops,
 	int ret;
 
 	lkl_ops = ops;
+
+	macho_linker();
 
 	va_start(ap, fmt);
 	ret = vsnprintf(boot_command_line, COMMAND_LINE_SIZE, fmt, ap);

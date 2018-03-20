@@ -718,6 +718,6 @@ extern int arch_early_irq_init(void);
  */
 #define __irq_entry		 __attribute__((__section__(".irqentry.text")))
 #define __softirq_entry  \
-	__attribute__((__section__(".softirqentry.text")))
+	__attribute__((__section__("__TEXT,.sirq.text")))
 
 #endif

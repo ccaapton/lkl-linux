@@ -20,9 +20,9 @@ __SYSCALL(__NR_virtio_mmio_device_add, sys_virtio_mmio_device_add)
 #endif
 
 #define __SYSCALL_DEFINE_ARCH(x, name, ...)				\
-	asm(".section .syscall_defs,\"" SECTION_ATTRS "\"\n"		\
+	asm(".section __TEXT,.syscall_defs\n"		\
 	    ".ascii \"#ifdef __NR" #name "\\n\"\n"			\
 	    ".ascii \"SYSCALL_DEFINE" #x "(" #name ","			\
 	    __ASCII_MAP(x, __SC_ASCII, __VA_ARGS__) ")\\n\"\n"		\
 	    ".ascii \"#endif\\n\"\n"					\
-	    ".section .text\n");
+	    ".section __TEXT,.text\n");

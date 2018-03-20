@@ -58,7 +58,7 @@ archive_builtin()
 	if [ -n "${CONFIG_THIN_ARCHIVES}" ]; then
 		info AR built-in.o
 		rm -f built-in.o;
-		${AR} rcsTP${KBUILD_ARFLAGS} built-in.o			\
+		${AR} rc${KBUILD_ARFLAGS} built-in.o			\
 					${KBUILD_VMLINUX_INIT}		\
 					${KBUILD_VMLINUX_MAIN}
 	fi
@@ -97,24 +97,20 @@ vmlinux_link()
 
 	if [ "${SRCARCH}" != "um" ]; then
 		if [ -n "${CONFIG_THIN_ARCHIVES}" ]; then
-			objects="--whole-archive			\
+			objects="-all_load			\
 				built-in.o				\
-				--no-whole-archive			\
-				--start-group				\
+				-noall_load			\
 				${KBUILD_VMLINUX_LIBS}			\
-				--end-group				\
 				${1}"
 		else
 			objects="${KBUILD_VMLINUX_INIT}			\
-				--start-group				\
 				${KBUILD_VMLINUX_MAIN}			\
 				${KBUILD_VMLINUX_LIBS}			\
-				--end-group				\
 				${1}"
 		fi
 
 		${LD} ${LDFLAGS} ${LDFLAGS_vmlinux} -o ${2}		\
-			-T ${lds} ${objects}
+			${objects}
 	else
 		if [ -n "${CONFIG_THIN_ARCHIVES}" ]; then
 			objects="-Wl,--whole-archive			\
@@ -134,7 +130,6 @@ vmlinux_link()
 		fi
 
 		${CC} ${CFLAGS_vmlinux} -o ${2}				\
-			-Wl,-T,${lds}					\
 			${objects}					\
 			-lutil -lrt -lpthread
 		rm -f linux

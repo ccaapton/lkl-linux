@@ -64,6 +64,12 @@ const char *lkl_inet_ntop(int af, const void *src, char *dst, socklen_t size)
 #endif
 
 static inline void set_sockaddr(struct lkl_sockaddr_in *sin, unsigned int addr,
+				unsigned short port) __attribute__((unused));
+static inline void set_sockaddr(struct lkl_sockaddr_in *sin, unsigned int addr,
+				unsigned short port) __attribute__((unused));
+static inline void set_sockaddr(struct lkl_sockaddr_in *sin, unsigned int addr,
+				unsigned short port) __attribute__((unused));
+static inline void set_sockaddr(struct lkl_sockaddr_in *sin, unsigned int addr,
 				unsigned short port)
 {
 	sin->sin_family = LKL_AF_INET;

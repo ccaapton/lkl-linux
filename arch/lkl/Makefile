@@ -1,8 +1,9 @@
 include arch/lkl/auto.conf
 
-KBUILD_CFLAGS += -fno-builtin
+KBUILD_CLANG_CFLAGS := -Wno-initializer-overrides -Wno-format-security -Wno-tautological-compare -Wno-format-security -Wno-format -Wno-gnu-variable-sized-type-not-at-end
+KBUILD_CFLAGS += -fno-builtin $(KBUILD_CLANG_CFLAGS)
 
-ifneq (,$(filter $(OUTPUT_FORMAT),elf64-x86-64 elf64-x86-64-freebsd elf32-littlearm elf64-littleaarch64))
+ifneq (,$(filter $(OUTPUT_FORMAT),elf64-x86-64 elf64-x86-64-freebsd elf32-littlearm elf64-littleaarch64 mach-o-x86-64))
 KBUILD_CFLAGS += -fPIC
 else ifneq (,$(filter $(OUTPUT_FORMAT),pe-i386 pe-x86-64 ))
 ifneq ($(OUTPUT_FORMAT),pe-x86-64)
@@ -27,7 +28,7 @@ else # e.g., FreeBSD
 NPROC=$(shell sysctl -n hw.ncpu)
 endif
 
-LDFLAGS_vmlinux += -r
+LDFLAGS_vmlinux += -r arch/lkl/kernel/vmlinux-mach-o.o arch/lkl/kernel/mach-o-linker.o
 
 ifeq ($(buildrump),yes)
 KBUILD_CFLAGS += -I$(RUMP_INCLUDE) -DRUMPUSER -DLIBRUMPUSER -D_KERNEL
@@ -70,12 +71,13 @@ core-y += arch/lkl/mm/
 core-y += arch/lkl/drivers/
 
 all: lkl.o
+vmlinux: arch/lkl/kernel/vmlinux-mach-o.o arch/lkl/kernel/mach-o-linker.o
 
 lkl.o: vmlinux
 	$(call make_ns_symbols,vmlinux,lkl.o)
 
 arch/lkl/include/generated/uapi/asm/syscall_defs.h: vmlinux
-	$(OBJCOPY) -j .syscall_defs -O binary --set-section-flags .syscall_defs=alloc $< $@
+	$(OBJCOPY) -j __TEXT..syscall_defs -O binary --set-section-flags __TEXT,.syscall_defs=alloc $< $@
 	$(Q) export tmpfile=$(shell mktemp); \
 	sed 's/\x0//g' $@ > $$tmpfile; mv $$tmpfile $@ ; rm -f $$tmpfile
 

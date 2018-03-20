@@ -165,6 +165,9 @@ workflows:
      - android-aarch64
      - freebsd11_x86_64
      - checkpatch
+    branches:
+      only:
+        - master
   nightly:
     triggers:
       - schedule:
