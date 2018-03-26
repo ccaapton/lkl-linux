@@ -38,8 +38,8 @@ extern uintptr_t __start___param, __stop___param;
 
 void macho_linker(void)
 {
-	__start___param = (uintptr_t) &__start___param;
-	__stop___param = (uintptr_t) &__stop___param;
+//	__start___param = (uintptr_t) &__start___param;
+//	__stop___param = (uintptr_t) &__stop___param;
 }
 
 /* XXX: when initcall3 (arch_initcall) is missing, linker locates
@@ -127,6 +127,8 @@ void *sys_virtio_mmio_device_add;
 void *sys_timerfd_create;
 void *sys_timerfd_gettime;
 void *sys_timerfd_settime;
+#if 0
 void *sys_futex;
 void *sys_get_robust_list;
 void *sys_set_robust_list;
+#endif

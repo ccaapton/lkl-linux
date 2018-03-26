@@ -43,14 +43,15 @@ EXP_SYMRENAME=rump|RUMP|bmk_|lib_|nuse_|lkl_|__tls|__initcall_start
 EXP_SYMRENAME:=$(EXP_SYMRENAME)|__initcall_end|__gcov|_end|_GLOBAL_OFFSET_TABLE|__assert13
 EXP_SYMRENAME:=$(EXP_SYMRENAME)|${GCCSYMBOLS}|${GCCATOMIC}'${_SYMQUIRK}'
 EXP_SYMRENAME:=$(EXP_SYMRENAME)${RUMP_SYM_NORENAME:D|${RUMP_SYM_NORENAME}}|${VMLINUX_SYMS}
+_PQ="_"
 
 define make_ns_symbols
 	${Q}echo "  OBJCPY	" $1 $2;	\
-	${NM} -go $1 | awk ' 	\
+	${NM} -goU $1 | awk ' 	\
 	$$NF!~/^'${_PQ}'(${EXP_SYMRENAME})/ \
 	{s=$$NF;sub(/^'${_PQ}'/, "&rumpns_", s); print $$NF, s}'\
 	| sort | uniq  > $2.renametab; \
-	$(OBJCOPY) -R .eh_frame -L __start___ex_table \
+	$(OBJCOPY) -R __TEXT,.eh_frame -L __start___ex_table \
 	-L __stop___ex_table --preserve-dates \
 	--redefine-syms $2.renametab $1 $2; \
 	rm -f $2.renametab

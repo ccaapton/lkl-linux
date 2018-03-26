@@ -102,6 +102,7 @@ define rump_host
   SOSUF := .so
 
   $(if $(filter $(1),elf64-x86-64-freebsd),$(call bsd_host))
+  $(if $(filter $(1),mach-o-x86-64),$(call macos_host))
   # if rumprun=yes, then skip virtio-host and json build
   $(if $(filter $(rumprun),yes),
     CFLAGS += -DRUMPRUN
