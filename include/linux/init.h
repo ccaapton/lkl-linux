@@ -40,11 +40,11 @@
 
 /* These are for everybody (although not all archs will actually
    discard it in modules) */
-#define __init		__section(.init.text) __cold  __latent_entropy
-#define __initdata	__section(.init.data)
-#define __initconst	__section(.init.rodata)
-#define __exitdata	__section(.exit.data)
-#define __exit_call	__used __section(.exitcall.exit)
+#define __init		__sectionT(.init.text) __cold  __latent_entropy
+#define __initdata	__sectionD(.init.data)
+#define __initconst	__sectionD(.init.rodata)
+#define __exitdata	__sectionD(.exit.data)
+#define __exit_call	__used __sectionD(.exitcall.exit)
 
 /*
  * modpost check for section mismatches during the kernel build.
@@ -63,9 +63,9 @@
  *
  * The markers follow same syntax rules as __init / __initdata.
  */
-#define __ref            __section(.ref.text) noinline
-#define __refdata        __section(.ref.data)
-#define __refconst       __section(.ref.rodata)
+#define __ref            __sectionT(.ref.text) noinline
+#define __refdata        __sectionD(.ref.data)
+#define __refconst       __sectionD(.ref.rodata)
 
 #ifdef MODULE
 #define __exitused
@@ -73,12 +73,12 @@
 #define __exitused  __used
 #endif
 
-#define __exit          __section(.exit.text) __exitused __cold notrace
+#define __exit          __sectionT(.exit.text) __exitused __cold notrace
 
 /* Used for MEMORY_HOTPLUG */
-#define __meminit        __section(.meminit.text) __cold notrace \
+#define __meminit        __sectionT(.meminit.text) __cold notrace \
 						  __latent_entropy
-#define __meminitdata    __section(.meminit.data)
+#define __meminitdata    __sectionD(.meminit.data)
 #define __meminitconst   __section(.meminit.rodata)
 #define __memexit        __section(.memexit.text) __exitused __cold notrace
 #define __memexitdata    __section(.memexit.data)
@@ -162,7 +162,7 @@ extern bool initcall_debug;
 
 #define __define_initcall(fn, id) \
 	static initcall_t __initcall_##fn##id __used \
-	__attribute__((__section__(".initcall" #id ".init"))) = fn;
+	__attribute__((__section__("__DATA,.initcall" #id))) = fn;
 
 /*
  * Early initcalls run before initializing SMP.
@@ -225,7 +225,7 @@ struct obs_kernel_param {
 	static const char __setup_str_##unique_id[] __initconst		\
 		__aligned(1) = str; 					\
 	static struct obs_kernel_param __setup_##unique_id		\
-		__used __section(.init.setup)				\
+	__used __sectionD(.init.setup)				\
 		__attribute__((aligned((sizeof(long)))))		\
 		= { __setup_str_##unique_id, fn, early }
 
@@ -269,7 +269,7 @@ void __init parse_early_options(char *cmdline);
 #endif
 
 /* Data marked not to be saved by software suspend */
-#define __nosavedata __section(.data..nosave)
+#define __nosavedata __sectionD(.data..nosave)
 
 #ifdef MODULE
 #define __exit_p(x) x

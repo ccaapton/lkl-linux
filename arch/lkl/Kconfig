@@ -16,6 +16,7 @@ config LKL
        select DMA_NOOP_OPS
        select PHYS_ADDR_T_64BIT if 64BIT
        select 64BIT if OUTPUT_FORMAT = "elf64-x86-64"
+       select 64BIT if OUTPUT_FORMAT = "mach-o-x86-64"
 	   select 64BIT if OUTPUT_FORMAT = "pe-x86-64"
        select HAVE_UNDERSCORE_SYMBOL_PREFIX if OUTPUT_FORMAT = "pe-i386"
        select 64BIT if OUTPUT_FORMAT = "elf64-x86-64-freebsd"
@@ -49,6 +50,9 @@ config ARCH_DMA_ADDR_T_64BIT
        def_bool 64BIT
 
 config 64BIT
+       def_bool n
+
+config THIN_ARCHIVES
        def_bool n
 
 config BIG_ENDIAN

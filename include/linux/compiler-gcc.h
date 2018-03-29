@@ -90,6 +90,10 @@
 
 #define __deprecated	__attribute__((deprecated))
 #define __packed	__attribute__((packed))
+#ifdef __APPLE__
+#undef __weak
+#define alias(symbol)
+#endif
 #define __weak		__attribute__((weak))
 #define __alias(symbol)	__attribute__((alias(#symbol)))
 
