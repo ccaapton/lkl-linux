@@ -28,7 +28,11 @@ else # e.g., FreeBSD
 NPROC=$(shell sysctl -n hw.ncpu)
 endif
 
-LDFLAGS_vmlinux += -r arch/lkl/kernel/vmlinux-mach-o.o arch/lkl/kernel/mach-o-linker.o
+LDFLAGS_vmlinux += -r
+ifeq ($(OUTPUT_FORMAT),mach-o-x86-64)
+LKL_LINKER_ADD := arch/lkl/kernel/vmlinux-mach-o.o arch/lkl/kernel/mach-o-linker.o
+LDFLAGS_vmlinux += $(LKL_LINKER_ADD)
+endif
 
 ifeq ($(buildrump),yes)
 KBUILD_CFLAGS += -I$(RUMP_INCLUDE) -DRUMPUSER -DLIBRUMPUSER -D_KERNEL
@@ -72,7 +76,7 @@ core-y += arch/lkl/mm/
 core-y += arch/lkl/drivers/
 
 all: lkl.o
-vmlinux: arch/lkl/kernel/vmlinux-mach-o.o arch/lkl/kernel/mach-o-linker.o
+vmlinux: $(LKL_LINKER_ADD)
 
 lkl.o: vmlinux
 	$(call make_ns_symbols,vmlinux,lkl.o)
