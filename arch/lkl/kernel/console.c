@@ -60,37 +60,92 @@ int __init lkl_console_init(void)
 }
 core_initcall(lkl_console_init);
 
-static ssize_t file_write(struct file *fp, const char __user *s,
-			  size_t n, loff_t *off)
+#include <linux/fdtable.h>
+struct rumpuser_iovec {
+	void *iov_base;
+	size_t iov_len;
+};
+int rumpuser_iovread(int, struct rumpuser_iovec *, size_t, int64_t, size_t *);
+int rumpuser_iovwrite(int, const struct rumpuser_iovec *, size_t,
+		      int64_t, size_t *);
+
+
+static int _fp_cmp(const void *v, struct file *fp, unsigned fd)
 {
-	console_write(NULL, s, n);
-	return n;
+	if (v == fp)
+		return fd;
+	return 0;
 }
 
-static ssize_t file_read(struct file *file, char __user *buf, size_t size,
+static void _lookfor_private_fd(struct file *file)
+{
+	int fd;
+
+	fd = iterate_fd(current->files, 0, _fp_cmp, file);
+	if (!fd)
+		pr_warn("no fd found\n");
+
+	if (file != fcheck(fd))
+		pr_warn("invalid fp found (fd=%d)\n", fd);
+
+	file->private_data = (uintptr_t)fd;
+
+}
+
+static ssize_t lkl_file_write(struct file *fp, const char __user *buf,
+			      size_t size, loff_t *ppos)
+{
+	int err = 0;
+	/* XXX: need to use iovwrite in host_ops (not directly from rump hypercall) */
+	struct rumpuser_iovec iov;
+	ssize_t ret;
+
+	if (unlikely(fp->private_data == (void *)-1))
+		_lookfor_private_fd(fp);
+
+	iov.iov_base = (void *)buf;
+	iov.iov_len = size;
+
+	err = rumpuser_iovwrite((int)fp->private_data, &iov, 1, 0, &ret);
+	if (err == 0)
+		return ret;
+
+	return -err;
+}
+
+static ssize_t lkl_file_read(struct file *fp, char __user *buf, size_t size,
 			 loff_t *ppos)
 {
 	int err = 0;
-#ifdef TO_BE_IMPLEMENTED
-	/* need to use iovread in host_ops (not directly from rump hypercall) */
+	/* XXX: need to use iovread in host_ops (not directly from rump hypercall) */
 	struct rumpuser_iovec iov;
 	ssize_t ret;
+
+	if (unlikely(fp->private_data == (void *)-1))
+		_lookfor_private_fd(fp);
 
 	iov.iov_base = buf;
 	iov.iov_len = size;
 
-	err = rumpuser_iovread(0, &iov, 1, 0, &ret);
+	err = rumpuser_iovread((int)fp->private_data, &iov, 1, 0, &ret);
 	if (err == 0)
 		return ret;
 
-#endif
 	return -err;
+}
+
+static int lkl_file_open(struct inode *inode, struct file *file)
+{
+	/* initialize */
+	file->private_data = (uintptr_t)-1;
+	return 0;
 }
 
 static const struct file_operations lkl_stdio_fops = {
 	.owner		= THIS_MODULE,
-	.write =	file_write,
-	.read =		file_read,
+	.open =	lkl_file_open,
+	.write =	lkl_file_write,
+	.read =	lkl_file_read,
 };
 
 static int __init lkl_stdio_init(void)

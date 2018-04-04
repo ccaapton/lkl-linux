@@ -690,7 +690,7 @@ int rump___sysimpl_reboot(int opt, char *bootstr)
 int rump_pub_etfs_register(const char *key, const char *hostpath,
 			   enum rump_etfs_type ftype)
 {
-	lkl_printf("warn: rump_pub_etfs_register_register is not supported.\n");
+//	lkl_printf("warn: rump_pub_etfs_register_register is not supported.\n");
 	return 0;
 }
 
@@ -718,8 +718,7 @@ int rump___sysimpl_mount50(const char *fstype, const char *path, int perm,
 
 int rump___sysimpl_dup2(int i, int j)
 {
-	panic();
-	return 0;
+	return lkl_sys_dup2(i, j);
 }
 
 int rump___sysimpl_socket30(int i, int j, int k)
@@ -742,8 +741,7 @@ void __assert13(const char *file, int line, const char *function,
 
 int rump___sysimpl_close(int fd)
 {
-	panic();
-	return -1;
+	return lkl_sys_close(fd);
 }
 
 int rump___sysimpl_ioctl(int fd, u_long com, void *data)
@@ -757,9 +755,9 @@ int rump___sysimpl_mkdir(const char *path, mode_t mode)
 	return lkl_sys_mkdir(path, mode);
 }
 
-int rump___sysimpl_open(const char *name, int flags, ...)
+int rump___sysimpl_open(const char *name, int flags, mode_t mode)
 {
-	return -1;
+	return lkl_sys_open(name, flags, mode);
 }
 
 #endif /* RUMP_TEMP_STUB */
